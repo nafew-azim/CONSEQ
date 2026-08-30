@@ -4,9 +4,6 @@
 
 143,786 token positions · 14 models · 9 model families · 9 programming languages · 3 benchmarks
 
-Companion artifact for *Most Uncertainty Doesn't Matter: An Execution-Grounded Dataset of Per-Token
-Consequence in Code Generation* ([`paper/main.pdf`](paper/main.pdf)).
-
 ## Overview
 
 Selective distillation, reinforcement learning with verifiable rewards, adaptive decoding, and
@@ -25,7 +22,7 @@ function f(n) { return n * 2; }     greedy trajectory, verified to pass its test
 function f(n) { return n + 2; }     one token replaced, suffix held fixed, executed once
 ```
 
-The measurement requires one execution and no generation, so the label is a deterministic function
+The measurement requires one execution and no generation, so each label is a deterministic function
 of the substitution rather than a sample from a decoder.
 
 ## Principal findings
@@ -51,8 +48,9 @@ valid for editing a fixed sequence and invalid for steering generation.
 
 ```bash
 git clone https://github.com/nafew-azim/CONSEQ.git
-cd CONSEQ/conseq
-gunzip -k conseq.jsonl.gz          # 58 MB, newline-delimited JSON
+cd CONSEQ
+pip install -r requirements.txt
+gunzip -k data/conseq.jsonl.gz          # 58 MB, newline-delimited JSON
 ```
 
 Scoring a token-importance criterion against execution ground truth:
@@ -61,19 +59,20 @@ Scoring a token-importance criterion against execution ground truth:
 import json
 from scipy.stats import spearmanr
 
-rows = [json.loads(line) for line in open("conseq.jsonl")]
+rows = [json.loads(line) for line in open("data/conseq.jsonl")]
 subset = [r for r in rows if r["lang"] == "js"]
 
 scores = [your_criterion(r) for r in subset]
 truth  = [r["K_sem"] for r in subset]
 
-print(spearmanr(scores, truth))     # entropy scores about -0.196
+print(spearmanr(scores, truth))         # entropy scores about -0.196
 ```
 
 Two conditions must be observed:
 
 1. **Filter instrument artifacts before analysis.** 34.0% of raw `K_sem` positions are artifacts of
-   the measurement rather than decisions the model made. Use `is_artifact()` from `phase_a.py`.
+   the measurement rather than decisions the model made. Use `is_artifact()` from
+   `instrument/phase_a.py`.
 2. **Do not compare `K_sem` across typing disciplines.** Static type checking relocates faults from
    `K_sem` into `K_type`. Cross-language comparisons must use `K_sem + K_type`.
 
@@ -82,49 +81,74 @@ limitations in full.
 
 ## Repository layout
 
-| Path | Contents |
-|---|---|
-| `conseq/conseq.jsonl.gz` | The assembled release, gzipped |
-| `conseq/conseq_manifest.json` | Provenance for all 35 runs |
-| `conseq/phase_a.py` | The forced-splice measurement and the artifact filter |
-| `conseq/execjs.py` | Execution contracts for the nine languages |
-| `conseq/criteria.py` | The eleven published selection criteria |
-| `conseq/roles.py` | Syntactic-role taxonomy and the held-out selector |
-| `conseq/assemble.py` | Rebuilds the release from the raw per-run outputs |
-| `conseq/verify.py` | Re-derives every reported number from the data |
-| `conseq/figdata.py`, `figures.py` | Figure data and figure generation |
-| `conseq/o_*/`, `conseq/out*/` | Raw per-run outputs: 35 phase-A runs and phases B–G |
-| `paper/` | LaTeX source, figures, and the compiled PDF |
-| `DATASHEET.md` | Datasheet following Gebru et al. (2021) |
-| `FINDINGS.md` | Complete working log, including retracted claims |
+```
+data/
+  conseq.jsonl.gz        the release, gzipped
+  conseq_manifest.json   provenance and retention for all 35 runs
+  runs/                  raw per-run outputs: 35 phase-A runs and phases B-G
+instrument/
+  phase_a.py             the forced-splice measurement and the artifact filter
+  execjs.py              execution contracts for the nine languages
+  criteria.py            the eleven published selection criteria
+  roles.py               syntactic-role taxonomy and the held-out selector
+  loader.py table2.py    benchmark loading; criterion scoring
+  phase_b..g.py          repairability, decoding, composition, credit assignment
+  kaggle/                the job-orchestration scripts used to collect the data
+pipeline/
+  assemble.py            rebuilds the release from data/runs
+analysis/
+  verify.py              re-derives every reported number from the data
+  figdata.py             release -> figure data
+  generate_figures.py    figure data -> analysis/figures/*.pdf
+```
 
-## Reproducing the release
+The nine execution contracts live in one table-driven module, `instrument/execjs.py`, rather than in
+nine separate scripts, because they differ only in a parse command, a run command, and the error
+classes that mark an instrument artifact:
+
+| Language | Parse check | Execute | Type phase |
+|---|---|---|---|
+| JavaScript | `node --check` | `node` | — |
+| TypeScript | `tsc` (TS1xxx) | `tsc` → `node` | TS2xxx |
+| Python | `compile()` | `python3` | — |
+| Ruby | `ruby -c` | `ruby` | — |
+| PHP | `php -l` | `php` | — |
+| Perl | `perl -c` | `perl` + `Test::Deep` | — |
+| Go | `gofmt -e` | `go test` | yes |
+| Java | `javac` | `java -ea` | yes |
+| Rust | bare `error:` | `rustc` | `error[E…]` |
+
+Go ships its tasks as test files and Rust's linker failures carry no diagnostic code; both broke a
+structural assumption the other languages shared, and both are documented in the corrections log.
+
+## Reproducing
 
 ```bash
-cd conseq
-python3 assemble.py     # raw runs   -> conseq.jsonl, byte-identical to the release
-python3 figdata.py      # release    -> figure data
-python3 figures.py      # figure data -> paper/figs/*.pdf
-python3 verify.py       # paper vs data -> 122 checks
+python3 pipeline/assemble.py        # data/runs -> data/conseq.jsonl, byte-identical to the release
+python3 analysis/figdata.py         # release   -> figure data
+python3 analysis/generate_figures.py
+python3 analysis/verify.py          # 58 data checks
 ```
 
 Assembly refuses to merge rows whose column semantics differ across instrument versions, so a
 future correction cannot retroactively contaminate this release.
 
-`verify.py` re-derives every mechanically checkable quantity in the paper from `conseq.jsonl` and
-exits non-zero if the manuscript and the data disagree. It covers the coverage tables, the typing
-gradient, every cell of the criterion audit, the artifact taxonomy, and the hardcoded section
-cross-references. Seven errors in the manuscript were found this way.
+`verify.py` re-derives every mechanically checkable quantity from the release and exits non-zero on
+disagreement: coverage, the typing gradient, the artifact taxonomy, every cell of the criterion
+audit, and the manifest against the raw runs. Given a checkout of the manuscript it additionally
+checks the paper against the data, including the hardcoded section cross-references:
 
-Requirements: Python 3.10+ with PyTorch for the measurement code; Matplotlib for the figures;
-`pdftotext` (poppler) for the cross-reference checks in `verify.py`. Re-running the measurement
-itself additionally requires the nine language toolchains listed in Appendix D of the paper.
+```bash
+CONSEQ_PAPER=/path/to/paper python3 analysis/verify.py     # 158 checks
+```
+
+Seven errors in the manuscript were found this way.
 
 ## Corrections
 
 Eleven results were believed before they were found to be artifacts of the instrument. Each is
-documented in Appendix C of the paper and in [`FINDINGS.md`](FINDINGS.md), together with the symptom
-that exposed it. Two published claims were retracted.
+documented in [`FINDINGS.md`](FINDINGS.md) together with the symptom that exposed it. Two published
+claims were retracted.
 
 Ten of the eleven were caught by a number being implausibly clean rather than by an error: nothing
 crashed, and each produced well-formed output that would have survived casual inspection. One
@@ -153,8 +177,8 @@ say, and the credible form of that claim is a demonstration that the failure mod
 
 ## Licence
 
-The dataset is released under [CC BY 4.0](LICENSE-DATA); the accompanying code under the
-[MIT licence](LICENSE). Instances derive from HumanEval (MIT), MBPP (CC BY 4.0), and MultiPL-E
+The dataset is released under [CC BY 4.0](LICENSE_DATA); the accompanying code under the
+[MIT licence](LICENSE_CODE). Instances derive from HumanEval (MIT), MBPP (CC BY 4.0), and MultiPL-E
 (MIT), each of which permits redistribution of derived work with attribution. Model weights are not
 redistributed; the dataset contains only measurements taken with them.
 

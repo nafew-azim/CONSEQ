@@ -12,6 +12,10 @@ not mean the same thing. Specifically:
 Emits: conseq.jsonl (release), conseq_manifest.json (provenance), and a coverage report.
 """
 import json, glob, os, sys, hashlib
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "instrument"))
+from _paths import RUNS, RELEASE, MANIFEST
 from collections import defaultdict
 
 MIN_IV = 2          # instrument version required for release
@@ -76,8 +80,9 @@ KEEP = ["problem", "pos", "n_pos", "tok", "alt", "err", "verdict", "entropy", "m
 
 def load_runs():
     runs = []
-    for f in sorted(glob.glob("out*/phase_a.jsonl") + glob.glob("o_*/phase_a.jsonl")):
-        d = os.path.dirname(f)
+    for f in sorted(glob.glob(os.path.join(RUNS, "out*", "phase_a.jsonl"))
+                + glob.glob(os.path.join(RUNS, "o_*", "phase_a.jsonl"))):
+        d = os.path.basename(os.path.dirname(f))   # PROVENANCE keys are bare run names
         try:
             rows = [json.loads(l) for l in open(f)]
         except Exception as e:
@@ -87,8 +92,7 @@ def load_runs():
     return runs
 
 
-def main(out="conseq.jsonl"):
-    sys.path.insert(0, ".")
+def main(out=RELEASE):
     from phase_a import is_artifact
     runs = load_runs()
     released, quarantined = [], []
@@ -125,7 +129,7 @@ def main(out="conseq.jsonl"):
     with open(out, "w") as fh:
         for r in released:
             fh.write(json.dumps(r) + "\n")
-    with open("conseq_manifest.json", "w") as fh:
+    with open(MANIFEST, "w") as fh:
         json.dump({"min_instrument_version": MIN_IV, "runs": manifest}, fh, indent=2)
 
     print(f"released    {len(released):7d} rows -> {out}")

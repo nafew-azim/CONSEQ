@@ -4,16 +4,22 @@ Definitions are imported from the analysis modules the tables use, so a figure
 cannot silently disagree with the table beside it.
 """
 import json, random, collections, sys
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "instrument"))
+from _paths import RELEASE, FIGURES, require_release
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 from phase_a import is_artifact
 from roles import role
 
-REL = "conseq.jsonl"
+REL = require_release()
 
 def clean(r):
     return bool(r["K_sem"]) and not is_artifact(r["tok"], r["alt"], r.get("err"), r["lang"])
 
-def load(path=REL):
-    return [json.loads(l) for l in open(path)]
+def load(path=None):
+    return [json.loads(l) for l in open(path or REL)]
 
 def heldout(rows, lang, seed=0, topks=None):
     """Fit role ranking on half the problems, score on the other half.
@@ -93,7 +99,7 @@ if __name__ == "__main__":
         out["lang"][lang] = verdict_shares(rs)
         b, rr, re_ = heldout(rs, lang)
         out["curves"][lang] = {"budget": b, "role": rr, "entropy": re_}
-    json.dump(out, open("figdata.json", "w"), indent=1)
+    json.dump(out, open(os.path.join(HERE, "figdata.json"), "w"), indent=1)
 
     # Figure 4 / Table 12 hold model and benchmark constant so the grouping is attributable
     # to the language, not to which models happen to cover it.
@@ -107,6 +113,6 @@ if __name__ == "__main__":
     json.dump({k: {"n": ctl[k]["n"],
                    **{f: ctl[k][f] / ctl[k]["n"] for f in ("K_syn", "K_type", "K_sem")}}
                for k in ("rb", "pl", "php", "py", "js", "ts", "go", "java", "rs")},
-              open("figdata_typing.json", "w"), indent=1)
+              open(os.path.join(HERE, "figdata_typing.json"), "w"), indent=1)
     print("configs:", len(out["configs"]), "langs:", len(out["lang"]),
           "-> figdata.json, figdata_typing.json")

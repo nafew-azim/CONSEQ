@@ -1,17 +1,6 @@
-# the release ships gzipped; this is the working copy
-conseq/conseq.jsonl
-conseq/run.py
-conseq/__pycache__/
+# the release ships gzipped; this is the decompressed working copy
+data/conseq.jsonl
+
 **/__pycache__/
 *.pyc
-
-# LaTeX build products (main.pdf is committed deliberately)
-paper/*.aux
-paper/*.log
-paper/*.out
-paper/*.bbl
-paper/*.blg
-paper/*.xdv
-paper/*.synctex.gz
-
 .DS_Store

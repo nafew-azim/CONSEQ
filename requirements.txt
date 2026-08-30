@@ -1,0 +1,15 @@
+# Reading and analysing the release
+#   pipeline/assemble.py, analysis/verify.py
+torch>=2.0            # instrument/phase_a.py imports it at module scope
+
+# Reproducing the figures
+#   analysis/generate_figures.py
+matplotlib>=3.7
+
+# Optional: the Spearman correlations in the README example
+#   analysis/verify.py ships its own implementation and does not need this
+scipy>=1.10
+
+# Re-running the measurement itself additionally requires
+#   transformers>=4.40, a CUDA GPU, and the nine language toolchains
+#   (node, tsc, python3, ruby, php, perl, go, javac, rustc).

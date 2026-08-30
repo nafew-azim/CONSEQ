@@ -5,14 +5,17 @@ direct labels and position as well as hue, so the palette's sub-3:1 contrast
 warning is discharged. Palette is the dataviz reference categorical set,
 validated with scripts/validate_palette.js (light mode, all checks pass).
 """
-import json, math
+import json, math, os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "instrument"))
+from _paths import FIGURES
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
-import os
-OUT = os.environ.get("CONSEQ_FIGS") or os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "paper", "figs") + os.sep
+HERE = os.path.dirname(os.path.abspath(__file__))
+OUT = (os.environ.get("CONSEQ_FIGS") or FIGURES) + os.sep
+os.makedirs(OUT, exist_ok=True)
 
 BLUE, ORANGE, AQUA, YELLOW, VIOLET = "#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#4a3aa7"
 INK, INK2, MUTED, GRID = "#0b0b0b", "#52514e", "#8a8880", "#e3e2dd"
@@ -298,8 +301,8 @@ def fig_boundary():
 
 
 if __name__ == "__main__":
-    d = json.load(open("figdata.json"))
-    t = json.load(open("figdata_typing.json"))
+    d = json.load(open(os.path.join(HERE, "figdata.json")))
+    t = json.load(open(os.path.join(HERE, "figdata_typing.json")))
     fig_instrument(); fig_entropy(d); fig_selector(d); fig_typing(t)
     fig_counterfactual(); fig_boundary()
     print("wrote 6 figures to", OUT)
