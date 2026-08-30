@@ -2,7 +2,7 @@
 
 **Living document. Every measured result, with status, evidence, and caveats.**
 **Release: `conseq.jsonl` — 143,786 positions · 14 models · 9 families · 9 languages · 28 configurations.**
-Last updated: 2026-08-28 · Companion to `consequential-uncertainty-proposal.md`
+Last updated: 2026-08-30 · Released at <https://github.com/nafew-azim/CONSEQ>
 
 Status key: **CONFIRMED** (replicated and sanity-checked) · **PROVISIONAL** (single run, or
 known unresolved caveat) · **RETRACTED** (was reported, later found to be an artifact)
@@ -13,7 +13,7 @@ known unresolved caveat) · **RETRACTED** (was reported, later found to be an ar
 
 Every numbered finding lists the experiment that produced it, the number, the check that makes it
 believable, and what would break it. **Findings without a by-construction sanity check are marked
-provisional**, because five results in this project looked clean and turned out to be bugs (§B).
+provisional**, because eleven results in this project looked clean and turned out to be bugs (§B).
 
 ---
 
@@ -455,16 +455,18 @@ consequence their checker intercepts (`K_type`), both families agree on the *sam
 
 Rust — the strictest checker in the set (affine types, no null, exhaustive matching) — intercepts the
 most, and Go the least, in **both** families independently. Yet `K_sem` stays inside a narrow
-9.3–13.2% band across all four typed languages while dynamic JavaScript sits at 24.6–24.7%. Static
+9.3–13.2% band across all four typed languages *and both families*, while dynamic JavaScript sits
+at 24.6–24.7%. (The single-family band, used in the paper's Table 12, is 9.6–13.2%.) Static
 checking does not merely move consequence; **how much it moves scales with how strict the checker
 is.**
 
-**Five dynamic languages span 25.2–37.3%. Three typed languages span 10.0–13.5%. The ranges do not
-overlap** — the gap between the lowest dynamic (JavaScript) and the highest typed (Go) is ~12 points.
-Confirmed across three independent type systems: TypeScript (structural, gradual), Go (structural,
-static), Java (nominal, class-based).
+**Five dynamic languages span 24.7–37.3%. Four typed languages span 9.6–13.2%. The ranges do not
+overlap** — the gap between the lowest dynamic (JavaScript, 24.7%) and the highest typed (Go, 13.2%)
+is 11.5 points. Confirmed across four independent type systems: TypeScript (structural, gradual),
+Go (structural, static), Java (nominal, class-based), and Rust (affine).
 
-**Entropy loses in all eight languages** — 6.5–29.3% capture against random baselines of 19.2–38.7%.
+**Entropy loses in all nine languages** — 2.3–31.2% capture against random baselines of 3.5–38.5%
+at the matched operating point, recomputed by `analysis/figdata.py`.
 
 **Replicated in a second, independent family.** StarCoder2-3B (BigCode, different tokenizer and
 training corpus) reproduces the collapse:
@@ -744,8 +746,10 @@ pre-push guards.
 ## C. Open — not yet measured
 
 **Status: the measurement programme is COMPLETE.** 28 configurations, 14 models, 9 families,
-9 languages. O4 and O7 closed the two counterfactual-robustness questions (F21, F22). Rust closed the last open question (F15 gradient). Every core finding has replicated. Additional models and languages now add artifact
-breadth, not evidence — with one exception (O9). What remains is release engineering and writing.
+9 languages. O4 and O7 closed the two counterfactual-robustness questions (F21, F22). Rust closed the last open question (F15 gradient). Every core finding has replicated, and additional models or languages would now add artifact
+breadth rather than evidence. Release engineering is complete: the dataset, instrument and
+analysis are published, `assemble.py` rebuilds the release byte-for-byte from the raw runs, and
+`verify.py` re-derives every reported number and fails on disagreement.
 
 
 | # | Item | Status |
@@ -755,10 +759,10 @@ breadth, not evidence — with one exception (O9). What remains is release engin
 | O3 | ~~Repairability~~ | **DONE** — replicated across 2 languages and 2 scales (F3) |
 | ~~O4~~ | ~~Parse-preserving counterfactual~~ | **DONE** — see F21. `K_syn` collapses to ~5% in JS/TS/Go; mass moves to `K_sem`/`K_type`; selector result unchanged and larger. |
 | O5 | ~~Static-vs-dynamic typing~~ | **DONE** — see F15 |
-| ~~O6~~ | ~~Citation verification~~ | **DONE** — 63-entry bibliography built from verified sources; all resolve, all cited, none orphaned. Unverifiable IDs from the original draft were removed rather than guessed. |
+| ~~O6~~ | ~~Citation verification~~ | **DONE** — 64-entry bibliography, all resolving, all cited, none orphaned. 17 entries initially carried a title but no author and were rendering as truncated keys; authors for all 17 were recovered from the arXiv API. |
 | ~~O7~~ | ~~Temperature-sampled counterfactual (secondary rule, §6.2)~~ | **DONE** — see F22. Paired on 5,097 positions: +3.8pp consequential, 90.1% verdict agreement. |
 | O11 | **Lua abandoned** — 0/161 retention, 142 assertion failures. Most likely genuine model incapacity (Qwen2.5-Coder-1.5B sees little Lua); stop tokens `\nlocal`/`\nfunction` may also truncate helpers as in Go. Adds no new typing axis (a 5th dynamic language), so not pursued. | dropped |
-| ~~O9~~ | **DONE** — F18 isolated to one interaction cell. Original: characterise F18 — DeepSeek-JS loses, DeepSeek-Python is at parity, Qwen-Python loses, so it is an *interaction*, not a family or language effect. One DeepSeek/TS run decides which story to tell. | running |
+| ~~O9~~ | ~~Characterise the anomalous cell~~ | **DONE** — F18. DeepSeek-JS loses (−7.0), DeepSeek-TS loses (−7.2), Qwen-Python loses (−5.8), DeepSeek-Python is at parity (+1.5): an *interaction*, neither a family nor a language effect. |
 | ~~O10~~ | ~~Dataset schema inconsistency~~ | **DONE** — all 12 v1 runs superseded by v2 re-runs; 0 rows quarantined; `iv` stamp on every row; v1→v2 coverage diff shows no regressions. |
 | ~~O8~~ | ~~Naturally-failing trajectories~~ | **DONE** — Phase G uses the model's own temperature-sampled failures, removing F10's injection confound. See F20. |
 
@@ -786,10 +790,16 @@ counts exactly (5,097 -> 5,097; 4,555 -> 4,555; 3,613 -> 3,613). Greedy trajecto
 verdicts are stable across sessions — a property the artifact needs and which had not been checked
 before the v2 re-runs.
 
-**Still to do before release:** a v1-vs-v2 diff check on problem counts (the MBPP re-run silently
-lost 130 problems to a hardcoded `n=161`, visible only against the run it replaced), and the
-datasheet documenting every column *and its language-conditionality* — F15 makes the latter
-mandatory, since `K_sem` is not comparable across type disciplines.
+**Both pre-release gaps are now closed.** The v1-vs-v2 diff check on problem counts is part of
+assembly and reports no regressions (the MBPP re-run had silently lost 130 problems to a hardcoded
+`n=161`, visible only against the run it replaced). `DATASHEET.md` documents every column *and its
+language-conditionality*, which F15 makes mandatory since `K_sem` is not comparable across type
+disciplines.
+
+**Reproduction is checked, not asserted.** From a fresh clone, `assemble.py` regenerates
+`conseq.jsonl` byte-for-byte from the 35 raw run directories, and `verify.py` runs 58 data checks
+(158 with the manuscript present) covering coverage, the typing gradient, the artifact taxonomy,
+every cell of the criterion audit, and the manifest against the raw runs.
 
 ---
 
@@ -884,13 +894,15 @@ a role selector beats a random baseline in **every one of 28 model-language conf
 criteria, which selective distillation, RLVR, adaptive decoding and attribution all use to route
 compute, perform at or below random: **entropy is below random in 24 of 28 configurations** and at
 parity in the rest, and **none of 11 published selection criteria beats a random baseline** on
-identical positions (Table 2, F14). Consequence **composes** on a fixed sequence (93.2% survival
+identical positions (F14). That last claim was itself strengthened by a correction: an earlier
+version reported Rho-1's excess loss as the one criterion with a positive correlation, which was our
+own sign error (B11); scored as published it is negative like the other ten. Consequence **composes** on a fixed sequence (93.2% survival
 across ~23 simultaneous individually-free substitutions) but does **not transfer off-trajectory**,
 which is why a perfect consequence oracle buys exactly nothing over random position selection at
 decode time (`t = 0.00`, F8). Per-token attribution is therefore valid for **editing a fixed
 sequence** and invalid for **steering generation**. Finally, what counts as "consequential" is partly
 a property of the *language*: static type checking converts silent logic faults into compile-time
-faults, so semantic consequence falls from 24.7–37.3% in five dynamic languages to 9.3–13.2% in four
+faults, so semantic consequence falls from 24.7–37.3% in five dynamic languages to 9.6–13.2% in four
 typed ones, with no overlap — replicated across two independent model families that agree to 0.1
 percentage points (F15). Both results are robust to the counterfactual rule: under a
 parse-preserving alternative `K_syn` collapses from ~30% to ~5% and the mass reappears as
