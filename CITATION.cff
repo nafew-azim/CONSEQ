@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "CONSEQ: Execution-Grounded Per-Token Consequence in Code Generation"
+message: "If you use this dataset, please cite the accompanying paper."
+type: dataset
+authors:
+  - family-names: Azim
+    given-names: Nafew
+    email: nafew.azim@northsouth.edu
+    affiliation: "Department of Electrical and Computer Engineering, North South University"
+repository-code: "https://github.com/nafew-azim/CONSEQ"
+license: CC-BY-4.0
+date-released: "2026-08-30"
+keywords:
+  - token importance
+  - credit assignment
+  - code generation
+  - program analysis
+  - data-centric machine learning

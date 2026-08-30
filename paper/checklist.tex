@@ -1,0 +1,51 @@
+\section*{Reproducibility Checklist}
+
+\begin{enumerate}
+\item \textbf{Claims.} The five contributions in \S1.3 match the results in \S6 and the scope
+boundaries in \S6.7 and \S7. Two claims made in an earlier version of this work were narrowed by our
+own measurements and the narrowing is stated in \S7 rather than removed.
+
+\item \textbf{Assumptions.} The estimand (\S3.1) fixes the counterfactual to the model's second
+choice; the bounded-interpretation claim is stated there and tested in \S6.6 under two alternative
+counterfactual rules. $K_t$ is deterministic (no sampling noise), stated in \S3.2.
+
+\item \textbf{Theory.} N/A --- the paper is empirical; no theorems are stated.
+
+\item \textbf{Reproducibility.} The assembly pipeline, per-language executors
+(Appendix~\ref{app:executors}), manifest (Appendix~\ref{app:manifest}), and figure scripts are
+released. Core measurements are deterministic (greedy decoding, fixed seeds); three determinism checks
+confirm exact reproducibility (\S5.3).
+
+\item \textbf{Data and Code.} The dataset (\texttt{conseq.jsonl}), the raw per-run outputs, the
+manifest, the assembly code, and the per-language executors are released together (\S9).
+Single-command assembly from raw outputs. Column semantics are documented in
+Appendix~\ref{app:schema}.
+
+\item \textbf{Experimental Details.} No training is performed. Model identifiers, parameter counts,
+tokenizers, and problem sources are documented in \S4 and in the per-run manifest.
+
+\item \textbf{Statistical Significance.} The consequence label $K_t$ is deterministic (\S3.2), so the
+headline quantity carries no sampling error. Where sampling does enter---the free-continuation arms,
+the decoding experiment, the credit-assignment experiment---intervals or test statistics are
+reported. The entropy result survives a within-problem paired test ($t = 11.95$, $p < 10^{-19}$,
+\S6.1). The RLVR experiment is flagged as provisional with $n = 76$ (\S7).
+
+\item \textbf{Compute Resources.} The forced-splice pass costs roughly 0.5 GPU-hours per
+model-language configuration on a single T4; the full release is on the order of 20 GPU-hours.
+Assembly requires a CPU machine with the nine language runtimes installed.
+
+\item \textbf{Ethics.} The dataset contains only programs and execution traces derived from public
+benchmarks. No human subjects, no personally identifiable information, no content that could
+facilitate harmful generation. Executors run without network access.
+
+\item \textbf{Broader Impact.} Stated before the references, as required by the venue.
+
+\item \textbf{Licenses.} The dataset is released under CC BY 4.0 and the code under MIT. Source
+benchmarks (HumanEval, MIT; MBPP, CC BY 4.0; MultiPL-E, MIT) and every model used are cited to
+their own releases; model weights are not redistributed. Terms are set out in
+Appendix~\ref{app:licensing}.
+
+\item \textbf{Assets.} A datasheet following \citet{gebru2021datasheets} is given in
+Appendix~\ref{app:datasheet}; a per-run manifest with provenance in Appendix~\ref{app:manifest}; and
+a corrections log with the diagnostic signature of each defect in Appendix~\ref{app:corrections}.
+\end{enumerate}

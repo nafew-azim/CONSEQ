@@ -1,0 +1,18 @@
+# Dataset licence
+
+The CONSEQ dataset (`conseq/conseq.jsonl.gz`, `conseq/conseq_manifest.json`, and the raw per-run
+outputs under `conseq/o_*/` and `conseq/out*/`) is released under the Creative Commons Attribution
+4.0 International Licence (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+
+Source material:
+
+- HumanEval (Chen et al., 2021) — MIT
+- MBPP (Austin et al., 2021) — CC BY 4.0
+- MultiPL-E (Cassano et al., 2023) — MIT
+
+All three permit redistribution of derived work with attribution, and all three are cited in the
+paper. Model weights are not redistributed; the dataset contains only measurements taken with them,
+and each model is cited to its own release.
+
+The author bears responsibility in case of violation of rights and confirms that the data licences
+permit the release described here.
