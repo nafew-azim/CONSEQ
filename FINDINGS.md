@@ -2,7 +2,7 @@
 
 **Living document. Every measured result, with status, evidence, and caveats.**
 **Release: `conseq.jsonl` — 143,786 positions · 14 models · 9 families · 9 languages · 28 configurations.**
-Last updated: 2026-08-30 · Released at <https://github.com/nafew-azim/CONSEQ>
+Last updated: 2026-08-31 · Archived at <https://doi.org/10.5281/zenodo.22210889>
 
 Status key: **CONFIRMED** (replicated and sanity-checked) · **PROVISIONAL** (single run, or
 known unresolved caveat) · **RETRACTED** (was reported, later found to be an artifact)

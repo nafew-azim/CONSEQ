@@ -8,6 +8,11 @@ authors:
     email: nafew.azim@northsouth.edu
     affiliation: "Department of Electrical and Computer Engineering, North South University"
 repository-code: "https://github.com/nafew-azim/CONSEQ"
+doi: "10.5281/zenodo.22210889"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22210889"
+    description: "Concept DOI; always resolves to the latest archived version."
 license: CC-BY-4.0
 date-released: "2026-08-30"
 keywords:

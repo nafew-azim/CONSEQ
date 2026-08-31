@@ -4,6 +4,11 @@
 
 143,786 token positions · 14 models · 9 model families · 9 programming languages · 3 benchmarks
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22210889.svg)](https://doi.org/10.5281/zenodo.22210889)
+
+**Archived release:** <https://doi.org/10.5281/zenodo.22210889> — cite this in preference to the
+repository URL. The Zenodo record is versioned and immutable; this repository is not.
+
 ## Overview
 
 Selective distillation, reinforcement learning with verifiable rewards, adaptive decoding, and
@@ -170,8 +175,16 @@ say, and the credible form of that claim is a demonstration that the failure mod
   title  = {Most Uncertainty Doesn't Matter: An Execution-Grounded Dataset of
             Per-Token Consequence in Code Generation},
   author = {Azim, Nafew},
-  year   = {2026},
-  note   = {Dataset and code: https://github.com/nafew-azim/CONSEQ}
+  year   = {2026}
+}
+
+@dataset{azim2026conseqdata,
+  title     = {{CONSEQ}: Execution-Grounded Per-Token Consequence in Code Generation},
+  author    = {Azim, Nafew},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.22210889},
+  url       = {https://doi.org/10.5281/zenodo.22210889}
 }
 ```
 
